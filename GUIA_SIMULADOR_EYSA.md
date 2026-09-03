@@ -2,200 +2,159 @@
 
 ## Objetivo
 
-Este proyecto simula la ingesta de telemetría de sistemas EYSA hacia ThingsBoard mediante MQTT.
+Esta guía explica cómo **agregar centros simulados** al proyecto sin modificar su arquitectura.
 
-La idea es poder levantar A-15 y luego agregar centros simulados para pruebas de carga sin instalar gateways físicos ni simular Modbus.
-
-El simulador reemplaza esta parte:
+El simulador reemplaza la lectura física y el ThingsBoard Gateway por un proceso Python que publica directamente por MQTT:
 
 ```text
+Producción:
 Sensores -> Modbus -> ThingsBoard Gateway -> MQTT -> ThingsBoard
+
+Simulación:
+Python -------------------------------> MQTT -> ThingsBoard
 ```
 
-por:
-
-```text
-Python -> MQTT -> ThingsBoard
-```
-
-ThingsBoard y las Rule Chains siguen procesando los datos normalmente.
+ThingsBoard continúa ejecutando las Rule Chains reales, por lo que el procesamiento posterior se mantiene.
 
 ---
 
-## Arquitectura del proyecto
+# 1. Regla principal
+
+Si el nuevo centro utiliza los mismos tipos de dispositivos que A-15:
+
+> **Agregar un centro debe ser una tarea de configuración, no de desarrollo.**
+
+Normalmente solo se modifica:
 
 ```text
-eysa-simulator/
-├── main.py
-├── config.py
-├── requirements.txt
-└── simulators/
-    ├── __init__.py
-    ├── power_meter.py
-    ├── dfm.py
-    └── tank.py
+config.py
 ```
 
-### Responsabilidad de cada archivo
-
-- `main.py`: conecta los gateways y ejecuta todos los simuladores.
-- `config.py`: define qué centros y dispositivos existen.
-- `simulators/power_meter.py`: comportamiento de analizadores eléctricos.
-- `simulators/dfm.py`: comportamiento de flujómetros.
-- `simulators/tank.py`: comportamiento del estanque.
-
-**Para agregar centros o dispositivos no se debe modificar `main.py` ni las clases de `simulators/`.  
-Normalmente solo se modifica `config.py`.**
-
----
-
-## Frecuencias simuladas
-
-### Power Meter
-
-- Variables instantáneas: cada **5 s**
-- Acumuladores de energía: cada **15 s**
-
-Variables acumuladas:
+No modificar para agregar un centro:
 
 ```text
-realEnergyIntoTheLoad
-reactiveEnergyIntoTheLoad
-apparentEnergyIntoTheLoad
-```
-
-Las variables instantáneas se envían en los bloques HEX esperados por la Rule Chain.
-
-### DFM
-
-- Bloque `gc`: cada **5 s**
-- `hoursOp`: cada **60 s**
-- Estados del flujómetro: cambian como máximo aproximadamente una vez cada **24 h**
-
-El acumulado de combustible se mantiene internamente como litros y el simulador lo vuelve a convertir al formato bruto esperado por la Rule Chain.
-
-### Estanque
-
-- `nivelEstanque`: cada **15 s**
-- El nivel disminuye progresivamente.
-- Al quedar cerca de vacío, vuelve a `max_level`, simulando una recarga completa.
-
----
-
-# Ejecutar el simulador
-
-Desde la raíz del proyecto:
-
-```bash
-source .venv/bin/activate
-python main.py
-```
-
-Para detener:
-
-```text
-Ctrl+C
-```
-
-Al iniciar se mostrará la cantidad total de dispositivos simulados:
-
-```text
-Simuladores activos: 10
-```
-
-A-15 actualmente corresponde a:
-
-```text
-7 Power Meters
-2 DFM
-1 Estanque
---------------
-10 dispositivos
+main.py
+simulators/power_meter.py
+simulators/dfm.py
+simulators/tank.py
 ```
 
 ---
 
-# Agregar un nuevo centro
+# 2. Preparar el centro en ThingsBoard
 
-## 1. Preparar el centro en ThingsBoard
-
-Antes de modificar el código:
+Antes de editar `config.py`:
 
 1. Crear o clonar el sistema en ThingsBoard.
-2. Crear su gateway.
-3. Obtener el Access Token del gateway.
+2. Crear un gateway para el centro.
+3. Obtener el Access Token de ese gateway.
 4. Crear los devices del centro.
-5. Configurar sus relaciones/assets/rule chains igual que en un sistema EYSA normal.
+5. Configurar assets, relaciones y Rule Chains igual que en un sistema EYSA normal.
 
-### Convención de nombres de devices
-
-Los devices creados en ThingsBoard **deben mantener la convención de nombres actual**, porque EYSA identifica el tipo de dispositivo a partir del comienzo del nombre.
-
-Convenciones base:
+Se debe usar:
 
 ```text
-Power Meters de consumo:
+1 centro simulado = 1 gateway de ThingsBoard
+```
+
+Esto permite que las pruebas también aumenten la cantidad de conexiones MQTT al crecer el número de centros.
+
+---
+
+# 3. Convención de nombres de devices
+
+Los nombres son importantes porque EYSA identifica el tipo de dispositivo a partir del comienzo del nombre.
+
+## Power Meters de consumo
+
+```text
 pm-general
 pm-<zona>
+```
 
-Power Meters de generadores:
+Ejemplos:
+
+```text
+pm-general
+pm-habitabilidad
+pm-fotoperiodo
+pm-alimentacion
+pm-alimentacion2
+```
+
+## Power Meters de generadores
+
+```text
 pm-gen-general
 pm-gen-<nombre>
+```
 
-Estanque:
+Ejemplos:
+
+```text
+pm-gen-general
+pm-gen-aux
+```
+
+## Estanque
+
+```text
 estanque
+```
 
-Flujómetros:
+## Flujómetros DFM
+
+```text
 dfm-general
 dfm-<nombre>
 ```
 
-Para un centro simulado, agregar el identificador del pontón **al final** del nombre, sin alterar el prefijo.
+Ejemplos:
 
-Ejemplo para el pontón `A42`:
+```text
+dfm-general
+dfm-aux
+```
+
+## Centros simulados
+
+Para diferenciar devices de distintos centros, agregar el identificador del pontón **al final** del nombre.
+
+Ejemplo para `A42`:
 
 ```text
 pm-general-a42
 pm-habitabilidad-a42
 pm-fotoperiodo-a42
 pm-alimentacion-a42
+pm-alimentacion2-a42
 
 pm-gen-general-a42
 pm-gen-aux-a42
 
-estanque-a42
-
 dfm-general-a42
 dfm-aux-a42
+
+estanque-a42
 ```
 
-**No usar el identificador del pontón al comienzo**, por ejemplo:
+Por ahora **no usar el identificador al comienzo**:
 
 ```text
 a42-pm-general
 ```
 
-La convención actual requiere conservar `pm-`, `pm-gen-`, `dfm-` o `estanque` al inicio. El sufijo del pontón se utiliza solamente para diferenciar e identificar los devices de cada centro simulado.
+La convención actual requiere conservar `pm-`, `pm-gen-`, `dfm-` o `estanque` al inicio del nombre.
 
-Los nombres definidos en `config.py` deben coincidir **exactamente** con los devices creados en ThingsBoard.
-
-Se recomienda:
-
-```text
-1 centro simulado = 1 gateway de ThingsBoard
-```
-
-Esto reproduce mejor la arquitectura real y aumenta también la cantidad de conexiones MQTT durante las pruebas.
+El nombre configurado en `config.py` debe coincidir **exactamente** con el device creado en ThingsBoard.
 
 ---
 
-## 2. Agregar el centro en `config.py`
+# 4. Agregar un centro en `config.py`
 
-No crear scripts nuevos por centro.
+Cada centro es un objeto dentro de `CENTERS`.
 
-Agregar otro objeto dentro de `CENTERS`.
-
-Ejemplo:
+Estructura:
 
 ```python
 CENTERS = [
@@ -235,15 +194,22 @@ CENTERS = [
 ]
 ```
 
-`main.py` detectará automáticamente todos los dispositivos definidos.
+`main.py` crea automáticamente los simuladores definidos en cada centro.
+
+No crear un script distinto por centro.
 
 ---
 
-# Agregar Power Meters
+# 5. Power Meters
 
-Todos los analizadores usan el mismo `PowerMeterSimulator`.
+Los Power Meters simulan:
 
-Agregar cada device dentro de:
+```text
+Variables instantáneas -> cada 5 s
+Acumuladores de energía -> cada 15 s
+```
+
+Agregar cada analizador dentro de:
 
 ```python
 "power_meters": []
@@ -260,44 +226,25 @@ Formato:
 }
 ```
 
-Ejemplo con varios:
+## Valores iniciales
 
-```python
-"power_meters": [
-    {
-        "name": "pm-general-a42",
-        "real_energy": 100000000.0,
-        "reactive_energy": 5000000.0,
-        "apparent_energy": 105000000.0,
-    },
-    {
-        "name": "pm-habitabilidad-a42",
-        "real_energy": 20000000.0,
-        "reactive_energy": 1000000.0,
-        "apparent_energy": 22000000.0,
-    },
-]
-```
-
-## Valores iniciales de acumuladores
-
-### Centro existente que se quiere continuar
-
-Usar los últimos valores almacenados en ThingsBoard:
+Las propiedades corresponden a:
 
 ```text
-realEnergyIntoTheLoad
-reactiveEnergyIntoTheLoad
-apparentEnergyIntoTheLoad
+real_energy     <- realEnergyIntoTheLoad
+reactive_energy <- reactiveEnergyIntoTheLoad
+apparent_energy <- apparentEnergyIntoTheLoad
 ```
 
-Así el acumulador continúa desde el último dato real.
+### Si se continúa un centro existente
 
-### Centro completamente simulado
+Usar los últimos valores almacenados en ThingsBoard.
 
-Los valores iniciales pueden ser arbitrarios.
+Esto evita que los acumuladores vuelvan hacia atrás.
 
-Ejemplo:
+### Si el centro es completamente simulado
+
+Se pueden usar valores iniciales arbitrarios:
 
 ```python
 "real_energy": 1000000.0,
@@ -305,13 +252,22 @@ Ejemplo:
 "apparent_energy": 1100000.0,
 ```
 
-No es necesario que tengan precisión física. El objetivo principal es generar volumen y frecuencia de telemetría.
+No se busca precisión física.
 
 ---
 
-# Agregar DFM
+# 6. DFM
 
-Agregar los devices dentro de:
+Los DFM simulan:
+
+```text
+Bloque gc -> cada 5 s
+hoursOp   -> cada 60 s
+```
+
+Además, los estados internos del flujómetro cambian muy poco: como máximo aproximadamente una vez cada 24 horas. La Rule Chain real decide si corresponde persistir esos estados.
+
+Agregar cada DFM dentro de:
 
 ```python
 "dfms": []
@@ -327,26 +283,9 @@ Formato:
 }
 ```
 
-Ejemplo:
+## `total_fuel`
 
-```python
-"dfms": [
-    {
-        "name": "dfm-general-a42",
-        "total_fuel": 32000.0,
-        "hours_op": 2400.0,
-    },
-    {
-        "name": "dfm-aux-a42",
-        "total_fuel": 30000.0,
-        "hours_op": 1700.0,
-    },
-]
-```
-
-## Importante sobre `total_fuel`
-
-Se ingresa el valor **ya procesado**, es decir, el valor visible en ThingsBoard como:
+Usar directamente el valor procesado visible en ThingsBoard:
 
 ```text
 EngineTotalFuelUsed
@@ -364,29 +303,44 @@ se configura como:
 "total_fuel": 32306.625
 ```
 
-No hace falta conocer el valor bruto enviado por Modbus.
+No es necesario conocer el valor bruto Modbus.
 
-El simulador hace internamente:
+Internamente el simulador realiza la conversión inversa:
 
 ```text
 litros
--> valor entero
--> registros uint16 high/low
+-> registros uint16
 -> bloque gc HEX
 -> MQTT
 -> Rule Chain
 -> EngineTotalFuelUsed
 ```
 
-`hours_op` corresponde directamente al último valor de:
+## `hours_op`
+
+Usar directamente el último valor de:
 
 ```text
 hoursOp
 ```
 
+Ejemplo:
+
+```python
+"hours_op": 2470.2094444444447
+```
+
+Para un centro completamente simulado ambos valores pueden ser arbitrarios.
+
 ---
 
-# Agregar estanque
+# 7. Estanque
+
+El estanque envía:
+
+```text
+nivelEstanque -> cada 15 s
+```
 
 Agregar dentro de:
 
@@ -406,29 +360,43 @@ Formato:
 
 Donde:
 
-- `level`: nivel inicial ya calculado, en litros.
-- `max_level`: capacidad a la que vuelve el estanque cuando se simula una recarga.
+- `level`: nivel inicial ya procesado, equivalente a `nivelCalculado`.
+- `max_level`: capacidad usada para simular una recarga completa.
 
-Ejemplo A-15:
+El nivel disminuye progresivamente. Cuando queda cerca de vacío, el simulador lo lleva nuevamente a `max_level`.
+
+Ejemplo para un estanque de 10.000 L:
 
 ```python
 {
-    "name": "estanque",
+    "name": "estanque-a42",
     "level": 3521.73,
     "max_level": 10000.0,
 }
 ```
 
-El simulador convierte internamente el nivel calculado al valor bruto `nivelEstanque` que espera la Rule Chain.
+El simulador convierte internamente `level` al valor bruto `nivelEstanque` esperado por la Rule Chain.
 
 ---
 
-# Ejemplo completo de un centro simulado
+# 8. Ejemplo de un centro completo
+
+Una réplica de la estructura de A-15 tiene:
+
+```text
+7 Power Meters
+2 DFM
+1 Estanque
+--------------
+10 dispositivos
+```
+
+Ejemplo:
 
 ```python
 {
-    "name": "SIM-02",
-    "gateway_token": "TOKEN_SIM_02",
+    "name": "A42-SIM",
+    "gateway_token": "TOKEN_A42",
 
     "power_meters": [
         {
@@ -443,18 +411,48 @@ El simulador convierte internamente el nivel calculado al valor bruto `nivelEsta
             "reactive_energy": 1000000.0,
             "apparent_energy": 22000000.0,
         },
+        {
+            "name": "pm-fotoperiodo-a42",
+            "real_energy": 30000000.0,
+            "reactive_energy": 1000000.0,
+            "apparent_energy": 32000000.0,
+        },
+        {
+            "name": "pm-alimentacion-a42",
+            "real_energy": 25000000.0,
+            "reactive_energy": 5000000.0,
+            "apparent_energy": 30000000.0,
+        },
+        {
+            "name": "pm-alimentacion2-a42",
+            "real_energy": 12000000.0,
+            "reactive_energy": 3000000.0,
+            "apparent_energy": 15000000.0,
+        },
+        {
+            "name": "pm-gen-general-a42",
+            "real_energy": 90000000.0,
+            "reactive_energy": 5000000.0,
+            "apparent_energy": 95000000.0,
+        },
+        {
+            "name": "pm-gen-aux-a42",
+            "real_energy": 70000000.0,
+            "reactive_energy": 5000000.0,
+            "apparent_energy": 75000000.0,
+        },
     ],
 
     "dfms": [
         {
             "name": "dfm-general-a42",
-            "total_fuel": 30000.0,
-            "hours_op": 2000.0,
+            "total_fuel": 32000.0,
+            "hours_op": 2400.0,
         },
         {
             "name": "dfm-aux-a42",
-            "total_fuel": 25000.0,
-            "hours_op": 1500.0,
+            "total_fuel": 30000.0,
+            "hours_op": 1700.0,
         },
     ],
 
@@ -468,19 +466,42 @@ El simulador convierte internamente el nivel calculado al valor bruto `nivelEsta
 }
 ```
 
-Para una réplica completa de A-15 se deben configurar:
+---
+
+# 9. Ejecutar y validar
+
+Desde la raíz del proyecto:
+
+```bash
+source .venv/bin/activate
+python main.py
+```
+
+Al iniciar, revisar:
 
 ```text
-7 PM
-2 DFM
-1 estanque
+Simuladores activos: N
 ```
+
+Para un centro completo como A-15:
+
+```text
+Simuladores activos: 10
+```
+
+Después validar en ThingsBoard:
+
+1. Abrir algunos devices.
+2. Revisar `Latest Telemetry`.
+3. Confirmar que las variables cambien con las frecuencias esperadas.
+4. Confirmar que los acumuladores aumenten.
+5. Confirmar que el estanque disminuya.
 
 ---
 
-# Cómo funciona `main.py`
+# 10. Cómo funciona el loop principal
 
-El loop principal es intencionalmente simple:
+`main.py` mantiene un loop simple:
 
 ```python
 while True:
@@ -490,7 +511,7 @@ while True:
     time.sleep(0.1)
 ```
 
-Aproximadamente 10 veces por segundo pregunta a cada simulador si le corresponde enviar algo.
+Aproximadamente 10 veces por segundo pregunta a cada simulador si le corresponde enviar datos.
 
 Cada clase administra sus propios tiempos:
 
@@ -500,89 +521,50 @@ DFM         -> 5 s / 60 s
 Estanque    -> 15 s
 ```
 
-`main.py` no necesita conocer estas frecuencias.
-
-Esto permite agregar muchos dispositivos sin duplicar lógica.
+Por eso no se deben agregar `sleep()` particulares en `main.py`.
 
 ---
 
-# Reglas para no romper la arquitectura
+# 11. Reglas para no romper la arquitectura
 
 ## Sí hacer
 
 - Agregar centros en `config.py`.
-- Agregar devices en las listas correspondientes.
-- Usar un gateway/token por centro.
-- Mantener nombres idénticos a ThingsBoard.
+- Agregar devices en la lista correspondiente.
+- Crear un gateway/token por centro.
+- Mantener la convención de nombres.
+- Hacer coincidir exactamente los nombres de ThingsBoard y `config.py`.
 - Usar los últimos acumuladores reales si se continúa un centro existente.
 - Usar valores arbitrarios razonables para centros completamente simulados.
 
 ## No hacer
 
-- No copiar `power_meter.py` para crear un PM nuevo.
 - No crear un script Python por centro.
+- No copiar `power_meter.py`, `dfm.py` o `tank.py` para crear otro device.
 - No agregar lógica específica de un centro dentro de `main.py`.
-- No agregar `sleep()` individuales dentro de `main.py`.
-- No enviar directamente las variables que actualmente deben pasar por Rule Chain.
-- No modificar las frecuencias globales solo para un centro sin una razón explícita.
-- No reutilizar nombres de devices que ya pertenezcan a otro sistema dentro del mismo tenant.
+- No agregar `sleep()` individuales en `main.py`.
+- No enviar directamente variables que actualmente deben pasar por Rule Chain.
+- No cambiar las frecuencias globales solo para un centro sin una razón explícita.
+- No reutilizar nombres de devices dentro del mismo tenant.
+- No poner el identificador del pontón al comienzo del nombre mientras la convención actual dependa del prefijo.
 
 ---
 
-# Flujo recomendado para agregar centros
+# 12. Checklist rápido para un nuevo centro
 
 ```text
-1. Crear centro/gateway/devices en ThingsBoard
-2. Obtener token del gateway
-3. Agregar centro en config.py
-4. Agregar sus PM
-5. Agregar sus DFM
-6. Agregar su estanque
-7. Ejecutar python main.py
-8. Confirmar cantidad de simuladores
-9. Revisar Latest Telemetry en ThingsBoard
-10. Dejar correr y monitorear servidor
+[ ] Crear gateway en ThingsBoard
+[ ] Obtener Access Token
+[ ] Crear devices con nombres correctos
+[ ] Configurar assets/relaciones/Rule Chains
+[ ] Agregar centro en config.py
+[ ] Configurar Power Meters
+[ ] Configurar DFM
+[ ] Configurar estanque
+[ ] Ejecutar python main.py
+[ ] Confirmar cantidad de simuladores
+[ ] Revisar Latest Telemetry
+[ ] Dejar el simulador corriendo para la prueba
 ```
 
----
-
-# Objetivo de las pruebas
-
-El simulador no busca producir datos físicamente perfectos.
-
-Se busca reproducir principalmente:
-
-- cantidad de centros;
-- cantidad de devices;
-- frecuencia de envío;
-- cantidad de variables;
-- procesamiento por Rule Chains;
-- tráfico MQTT;
-- carga sobre ThingsBoard;
-- Kafka;
-- PostgreSQL/TimescaleDB;
-- consultas del backend EYSA.
-
-Por eso los valores pueden ser simples mientras mantengan el formato esperado y los acumuladores crezcan de forma coherente.
-
----
-
-## Resumen rápido
-
-Para agregar un centro nuevo:
-
-```text
-ThingsBoard:
-crear gateway + devices
-
-config.py:
-agregar un nuevo bloque dentro de CENTERS
-
-main.py:
-NO TOCAR
-
-simulators/:
-NO TOCAR
-```
-
-Si el nuevo centro usa los mismos tipos de dispositivos que A-15, agregarlo debe ser principalmente una tarea de configuración y no de desarrollo.
+Si el nuevo centro utiliza los mismos tipos de dispositivos que A-15, no debería ser necesario modificar código fuera de `config.py`.
