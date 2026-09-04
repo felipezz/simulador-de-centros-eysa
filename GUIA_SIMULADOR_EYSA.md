@@ -48,8 +48,12 @@ Antes de editar `config.py`:
 1. Crear o clonar el sistema en ThingsBoard.
 2. Crear un gateway para el centro.
 3. Obtener el Access Token de ese gateway.
-4. Crear los devices del centro.
+4. Verificar que existan los Device Profiles que usarán los devices.
 5. Configurar assets, relaciones y Rule Chains igual que en un sistema EYSA normal.
+
+No es necesario crear manualmente cada device. Al ejecutar el simulador, la
+Gateway MQTT API conecta los devices existentes y crea automáticamente los que no
+existan con el `profile` declarado en `config.py`.
 
 Se debe usar:
 
@@ -146,7 +150,8 @@ a42-pm-general
 
 La convención actual requiere conservar `pm-`, `pm-gen-`, `dfm-` o `estanque` al inicio del nombre.
 
-El nombre configurado en `config.py` debe coincidir **exactamente** con el device creado en ThingsBoard.
+El nombre configurado en `config.py` debe coincidir **exactamente** con el device
+esperado en ThingsBoard. Cada device también debe declarar su Device Profile.
 
 ---
 
@@ -160,7 +165,7 @@ Estructura:
 CENTERS = [
     {
         "name": "A-15",
-        "gateway_token": "TOKEN_A15",
+        "gateway_token": gateway_token("A-15"),
 
         "power_meters": [
             # ...
@@ -176,8 +181,8 @@ CENTERS = [
     },
 
     {
-        "name": "SIM-02",
-        "gateway_token": "TOKEN_SIM_02",
+        "name": "A-42",
+        "gateway_token": gateway_token("A-42"),
 
         "power_meters": [
             # ...
@@ -195,6 +200,11 @@ CENTERS = [
 ```
 
 `main.py` crea automáticamente los simuladores definidos en cada centro.
+
+Al conectar cada device, ThingsBoard lo crea automáticamente si todavía no existe
+y le asigna el Device Profile indicado. Si ya existe, se conecta sin recrearlo.
+Los perfiles deben existir previamente en ThingsBoard. Si falta `profile`, el
+simulador usa `default` para conservar compatibilidad con configuraciones antiguas.
 
 No crear un script distinto por centro.
 
@@ -220,6 +230,7 @@ Formato:
 ```python
 {
     "name": "pm-general-a42",
+    "profile": "pm-5330",
     "real_energy": 100000000.0,
     "reactive_energy": 5000000.0,
     "apparent_energy": 105000000.0,
@@ -278,6 +289,7 @@ Formato:
 ```python
 {
     "name": "dfm-general-a42",
+    "profile": "DFM",
     "total_fuel": 32000.0,
     "hours_op": 2400.0,
 }
@@ -353,6 +365,7 @@ Formato:
 ```python
 {
     "name": "estanque-a42",
+    "profile": "nivel-estanque",
     "level": 3500.0,
     "max_level": 10000.0,
 }
@@ -370,6 +383,7 @@ Ejemplo para un estanque de 10.000 L:
 ```python
 {
     "name": "estanque-a42",
+    "profile": "nivel-estanque",
     "level": 3521.73,
     "max_level": 10000.0,
 }
@@ -395,48 +409,55 @@ Ejemplo:
 
 ```python
 {
-    "name": "A42-SIM",
-    "gateway_token": "TOKEN_A42",
+    "name": "A-42",
+    "gateway_token": gateway_token("A-42"),
 
     "power_meters": [
         {
             "name": "pm-general-a42",
+            "profile": "pm-5330",
             "real_energy": 100000000.0,
             "reactive_energy": 5000000.0,
             "apparent_energy": 105000000.0,
         },
         {
             "name": "pm-habitabilidad-a42",
+            "profile": "pm-5330",
             "real_energy": 20000000.0,
             "reactive_energy": 1000000.0,
             "apparent_energy": 22000000.0,
         },
         {
             "name": "pm-fotoperiodo-a42",
+            "profile": "pm-5330",
             "real_energy": 30000000.0,
             "reactive_energy": 1000000.0,
             "apparent_energy": 32000000.0,
         },
         {
             "name": "pm-alimentacion-a42",
+            "profile": "pm-5330",
             "real_energy": 25000000.0,
             "reactive_energy": 5000000.0,
             "apparent_energy": 30000000.0,
         },
         {
             "name": "pm-alimentacion2-a42",
+            "profile": "pm-5330",
             "real_energy": 12000000.0,
             "reactive_energy": 3000000.0,
             "apparent_energy": 15000000.0,
         },
         {
             "name": "pm-gen-general-a42",
+            "profile": "pm-5330",
             "real_energy": 90000000.0,
             "reactive_energy": 5000000.0,
             "apparent_energy": 95000000.0,
         },
         {
             "name": "pm-gen-aux-a42",
+            "profile": "pm-5330",
             "real_energy": 70000000.0,
             "reactive_energy": 5000000.0,
             "apparent_energy": 75000000.0,
@@ -446,11 +467,13 @@ Ejemplo:
     "dfms": [
         {
             "name": "dfm-general-a42",
+            "profile": "DFM",
             "total_fuel": 32000.0,
             "hours_op": 2400.0,
         },
         {
             "name": "dfm-aux-a42",
+            "profile": "DFM",
             "total_fuel": 30000.0,
             "hours_op": 1700.0,
         },
@@ -459,6 +482,7 @@ Ejemplo:
     "tanks": [
         {
             "name": "estanque-a42",
+            "profile": "nivel-estanque",
             "level": 7000.0,
             "max_level": 10000.0,
         },
@@ -532,6 +556,7 @@ Por eso no se deben agregar `sleep()` particulares en `main.py`.
 - Agregar centros en `config.py`.
 - Agregar devices en la lista correspondiente.
 - Crear un gateway/token por centro.
+- Declarar el Device Profile de cada device en `config.py`.
 - Mantener la convención de nombres.
 - Hacer coincidir exactamente los nombres de ThingsBoard y `config.py`.
 - Usar los últimos acumuladores reales si se continúa un centro existente.
@@ -555,13 +580,14 @@ Por eso no se deben agregar `sleep()` particulares en `main.py`.
 ```text
 [ ] Crear gateway en ThingsBoard
 [ ] Obtener Access Token
-[ ] Crear devices con nombres correctos
+[ ] Verificar que existan los Device Profiles necesarios
 [ ] Configurar assets/relaciones/Rule Chains
 [ ] Agregar centro en config.py
-[ ] Configurar Power Meters
-[ ] Configurar DFM
-[ ] Configurar estanque
+[ ] Configurar Power Meters con nombre y profile
+[ ] Configurar DFM con nombre y profile
+[ ] Configurar estanque con nombre y profile
 [ ] Ejecutar python main.py
+[ ] Confirmar que los devices se crearon/conectaron con el profile correcto
 [ ] Confirmar cantidad de simuladores
 [ ] Revisar Latest Telemetry
 [ ] Dejar el simulador corriendo para la prueba

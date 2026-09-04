@@ -3,10 +3,10 @@ import time
 from tb_gateway_mqtt import TBGatewayMqttClient
 from tb_device_mqtt import TBPublishInfo
 
+from config import HOST, PORT, gateway_token
 
-HOST = "158.23.62.92"
-PORT = 1883
-TOKEN = "vnA6AhbUpvWm55EQ7esZ"
+
+TOKEN = gateway_token("A-42")
 
 DEVICES = [
     "dfm-general",

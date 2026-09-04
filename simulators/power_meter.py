@@ -13,12 +13,14 @@ class PowerMeterSimulator:
         self,
         gateway,
         device_name,
+        profile="default",
         real_energy=0.0,
         reactive_energy=0.0,
         apparent_energy=0.0,
     ):
         self.gateway = gateway
         self.device_name = device_name
+        self.profile = profile
 
         self.real_energy = real_energy
         self.reactive_energy = reactive_energy
@@ -30,7 +32,10 @@ class PowerMeterSimulator:
         self.next_accum = now
 
     def start(self):
-        self.gateway.gw_connect_device(self.device_name)
+        self.gateway.gw_connect_device(
+            self.device_name,
+            device_type=self.profile,
+        )
 
     def tick(self):
         now = time.monotonic()

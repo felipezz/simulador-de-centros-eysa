@@ -53,7 +53,7 @@ eysa-simulator/
 ```
 
 - `main.py`: conecta los gateways y ejecuta todos los simuladores.
-- `config.py`: define centros, devices, tokens y valores iniciales.
+- `config.py`: define centros, devices, perfiles y valores iniciales.
 - `simulators/`: contiene el comportamiento de cada tipo de dispositivo.
 
 ## Instalación
@@ -91,10 +91,10 @@ El alta consiste principalmente en:
 
 ```text
 ThingsBoard:
-crear gateway + devices
+crear gateway + obtener su token
 
 config.py:
-agregar un nuevo bloque dentro de CENTERS
+agregar un nuevo bloque dentro de CENTERS y declarar el profile de cada device
 
 main.py:
 NO TOCAR
@@ -102,6 +102,15 @@ NO TOCAR
 simulators/:
 NO TOCAR
 ```
+
+Al iniciar, el simulador conecta cada device mediante la Gateway MQTT API. Si el
+device no existe, ThingsBoard puede crearlo automáticamente con el Device Profile
+declarado en `profile`; si ya existe, simplemente lo conecta sin recrearlo. Los
+Device Profiles (`pm-5330`, `DFM` y `nivel-estanque`) deben existir previamente en
+ThingsBoard.
+
+Si una configuración antigua no declara `profile`, se usa `default` para mantener
+el comportamiento anterior.
 
 Los devices deben respetar la convención de nombres actual. Para centros simulados, el identificador del pontón se agrega **al final**:
 

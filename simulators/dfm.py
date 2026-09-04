@@ -13,11 +13,13 @@ class DfmSimulator:
         self,
         gateway,
         device_name,
+        profile="default",
         total_fuel=0.0,
         hours_op=0.0,
     ):
         self.gateway = gateway
         self.device_name = device_name
+        self.profile = profile
 
         # Acumuladores
         self.total_fuel = total_fuel
@@ -35,7 +37,10 @@ class DfmSimulator:
         self.next_state_change = now + self.STATE_CHANGE_INTERVAL
 
     def start(self):
-        self.gateway.gw_connect_device(self.device_name)
+        self.gateway.gw_connect_device(
+            self.device_name,
+            device_type=self.profile,
+        )
 
     def tick(self):
         now = time.monotonic()

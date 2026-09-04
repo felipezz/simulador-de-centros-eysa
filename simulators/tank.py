@@ -14,9 +14,11 @@ class TankSimulator:
         device_name,
         level,
         max_level,
+        profile="default",
     ):
         self.gateway = gateway
         self.device_name = device_name
+        self.profile = profile
 
         self.level = level
         self.max_level = max_level
@@ -24,7 +26,10 @@ class TankSimulator:
         self.next_send = time.monotonic()
 
     def start(self):
-        self.gateway.gw_connect_device(self.device_name)
+        self.gateway.gw_connect_device(
+            self.device_name,
+            device_type=self.profile,
+        )
 
     def tick(self):
         now = time.monotonic()

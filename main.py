@@ -30,6 +30,7 @@ def main():
                 simulator = PowerMeterSimulator(
                     gateway=gateway,
                     device_name=pm_config["name"],
+                    profile=pm_config.get("profile", "default"),
                     real_energy=pm_config["real_energy"],
                     reactive_energy=pm_config["reactive_energy"],
                     apparent_energy=pm_config["apparent_energy"],
@@ -43,6 +44,7 @@ def main():
                 simulator = DfmSimulator(
                     gateway=gateway,
                     device_name=dfm_config["name"],
+                    profile=dfm_config.get("profile", "default"),
                     total_fuel=dfm_config["total_fuel"],
                     hours_op=dfm_config["hours_op"],
                 )
@@ -55,6 +57,7 @@ def main():
                 simulator = TankSimulator(
                     gateway=gateway,
                     device_name=tank_config["name"],
+                    profile=tank_config.get("profile", "default"),
                     level=tank_config["level"],
                     max_level=tank_config["max_level"]
                 )
