@@ -1,1 +1,6 @@
 .env
+
+# Local Python and macOS artifacts
+__pycache__/
+*.py[cod]
+.DS_Store

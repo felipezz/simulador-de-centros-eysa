@@ -195,5 +195,91 @@ CENTERS = [
                 "max_level": 10000.0,
             },
         ]
+    },
+    {
+        "name": "A-66",
+        "gateway_token": gateway_token("A-66"),
+
+        "power_meters": [
+            {
+                "name": "pm-general-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-fotoperiodo-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-alimentacion-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-oxigeno-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-general-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-a66",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+        ],
+
+        "dfms": [
+            {
+                "name": "dfm-general-a66",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-a66",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+        ],
+
+        "tanks": [
+            {
+                "name": "estanque-1-a66",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+            {
+                "name": "estanque-2-a66",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+        ],
     }
 ]
