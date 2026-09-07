@@ -58,15 +58,16 @@ Las proyecciones suponen la misma cantidad de dispositivos y frecuencia de enví
 | Uso después de comprimir el chunk activo | 43 GB, 18% |
 | Espacio disponible final | 205 GB |
 | PostgreSQL antes de comprimir el chunk activo | 38–38,4 GB |
-| Chunk comprimido manualmente | 18 GB antes de la conversión |
+| PostgreSQL después de la compresión | 20 GB |
+| Chunk antes / después | 18 GB / 72 MB |
 
 TimescaleDB 2.24.0 tiene columnstore habilitado y una política diaria de compresión. El chunk cubría del 3 al 10 de septiembre y había crecido durante las pruebas con 2–7 pontones. Se detuvo el simulador y se convirtió manualmente al columnstore.
 
-La conversión redujo el uso del volumen desde 61 GB hasta 43 GB y aumentó el espacio libre desde 187 GB hasta 205 GB. Esto equivale a aproximadamente **18 GB recuperados por compresión**, sujeto al redondeo de `df`. Sumando la limpieza Docker, el servidor recuperó aproximadamente **25 GB** y bajó de 28% a 18% de ocupación.
+La conversión redujo el chunk desde 18 GB hasta 72 MB, una reducción aproximada de **99,6%**. PostgreSQL bajó de 38 GB a 20 GB. El uso del volumen disminuyó desde 61 GB hasta 43 GB y el espacio libre aumentó desde 187 GB hasta 205 GB. Sumando la limpieza Docker, el servidor recuperó aproximadamente **25 GB** y bajó de 28% a 18% de ocupación.
 
 El aumento previo de 9,7 GB/día del disco completo no representa el crecimiento estable de PostgreSQL: incluía caché Docker y datos sin comprimir. El chunk activo equivale a un promedio provisional de aproximadamente 3,8 GB/día sin comprimir durante una carga variable. Escalado linealmente, el orden de magnitud sería ~5,4 GB/día con 10 pontones y ~6,5 GB/día con 12, antes de compresión.
 
-La proyección definitiva de almacenamiento requiere conocer el tamaño exacto del chunk después de la conversión y comparar dos mediciones de PostgreSQL separadas por 24 horas con una cantidad fija de pontones.
+La compresión reduce de forma material el riesgo de capacidad de disco. Sin embargo, el 99,6% corresponde a un único chunk y no debe proyectarse automáticamente a todo dato futuro. La simulación se reanudó unos 10 minutos antes de la medición final; se necesita otra medición de PostgreSQL tras 24 horas con una cantidad fija de pontones para calcular el crecimiento diario estable.
 
 ## Recomendación
 
@@ -80,4 +81,4 @@ El servidor puede considerarse apto para 12 pontones sólo si sostiene aproximad
 
 ## Alcance
 
-Las pruebas son ventanas cortas y secuenciales. No incluyen latencia ni lag de Kafka, y el throughput se midió directamente sólo con 7 pontones. Por ello, el informe establece un límite de planificación para decidir la expansión, no una garantía de servicio.
+Las pruebas son ventanas cortas y secuenciales. No incluyen latencia ni lag de Kafka, y el throughput se midió directamente sólo con 7 pontones. Las pruebas de CPU se realizaron antes de la compresión manual; el escenario optimizado debe validarse nuevamente. Por ello, el informe establece un límite de planificación para decidir la expansión, no una garantía de servicio.
