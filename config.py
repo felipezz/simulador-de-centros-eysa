@@ -281,5 +281,132 @@ CENTERS = [
                 "max_level": 10000.0,
             },
         ],
+    },
+    {
+        "name": "A-87",
+        "gateway_token": gateway_token("A-87"),
+
+        "power_meters": [
+            {
+                "name": "pm-general-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-fotoperiodo-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-alimentacion-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-1-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-2-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-3-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-4-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-bombas-1-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-bombas-2-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-general-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-1-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-2-a87",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+        ],
+
+        "dfms": [
+            {
+                "name": "dfm-general-a87",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-1-a87",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-2-a87",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+        ],
+
+        "tanks": [
+            {
+                "name": "estanque-1-a87",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+            {
+                "name": "estanque-2-a87",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+        ],
     }
 ]
