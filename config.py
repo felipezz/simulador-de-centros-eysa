@@ -408,5 +408,78 @@ CENTERS = [
                 "max_level": 10000.0,
             },
         ],
+    },
+    {
+        "name": "A-67",
+        "gateway_token": gateway_token("A-67"),
+
+        "power_meters": [
+            {
+                "name": "pm-general-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-fotoperiodo-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-alimentacion-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-general-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-a67",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+        ],
+
+        "dfms": [
+            {
+                "name": "dfm-general-a67",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-a67",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+        ],
+
+        "tanks": [
+            {
+                "name": "estanque-a67",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+        ],
     }
 ]
