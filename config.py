@@ -648,5 +648,132 @@ CENTERS = [
                 "max_level": 10000.0,
             },
         ],
+    },
+    {
+        "name": "Yelcho",
+        "gateway_token": gateway_token("Yelcho"),
+
+        "power_meters": [
+            {
+                "name": "pm-general-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-1-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-2-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-habitabilidad-3-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-fotoperiodo-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-alimentacion-1-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-alimentacion-2-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-bombas-1-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-bombas-2-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-general-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-1-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+            {
+                "name": "pm-gen-aux-2-yelcho",
+                "profile": "pm-5330",
+                "real_energy": 0.0,
+                "reactive_energy": 0.0,
+                "apparent_energy": 0.0,
+            },
+        ],
+
+        "dfms": [
+            {
+                "name": "dfm-general-yelcho",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-1-yelcho",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+            {
+                "name": "dfm-aux-2-yelcho",
+                "profile": "DFM",
+                "total_fuel": 0.0,
+                "hours_op": 0.0,
+            },
+        ],
+
+        "tanks": [
+            {
+                "name": "estanque-1-yelcho",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+            {
+                "name": "estanque-2-yelcho",
+                "profile": "nivel-estanque",
+                "level": 0.0,
+                "max_level": 10000.0,
+            },
+        ],
     }
 ]
